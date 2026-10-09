@@ -125,10 +125,14 @@ select, .search-input { width: 100%; background: var(--paper); border: 1px solid
 .job-checkbox { position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; cursor: pointer; z-index: 2; accent-color: var(--ink); }
 .search-input { max-width: 420px; margin-bottom: 16px; }
 .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.snippet-section { margin-bottom: 24px; }
+.snippet-category-title { font-size: 14px; font-weight: 640; color: var(--muted); margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
 .snippets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-.snippet-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 12px; }
-.snippet-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.snippet-header h3 { font-size: 14px; font-weight: 640; margin: 0; }
+.snippet-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; }
+.snippet-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.snippet-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.snippet-name { font-size: 14px; font-weight: 640; margin: 0; flex: 1; min-width: 120px; }
+.snippet-category-select { font-size: 12px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); cursor: pointer; }
 .snippet-content { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .template-card { padding: 18px; }
 .template-card small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }

@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const labels = { queued: '等待生成', running: '正在生成', completed: '已完成', failed: '生成失败', interrupted: '任务中断' };
 const views = { studio: '工作台', library: '记录', templates: '模板', snippets: '提示词库', settings: '连接' };
-const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '', selectedJobs: new Set(), snippets: [] };
+const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '', selectedJobs: new Set(), snippets: [], snippetCategories: ['场景', '光线', '风格', '构图', '材质', '其它'] };
 let theme = localStorage.getItem('studio-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
 function applyTheme() {
@@ -15,6 +15,10 @@ $('theme-toggle').addEventListener('click', () => { theme = theme === 'light' ? 
 function loadSnippets() {
   try {
     state.snippets = JSON.parse(localStorage.getItem('studio-snippets') || '[]');
+    // 为旧数据添加默认分类
+    state.snippets.forEach(s => {
+      if (!s.category) s.category = '其它';
+    });
   } catch {
     state.snippets = [];
   }
@@ -25,9 +29,9 @@ function saveSnippets() {
   renderSnippets();
 }
 
-function addSnippet(name, content) {
+function addSnippet(name, content, category = '其它') {
   const id = crypto.randomUUID();
-  state.snippets.push({ id, name, content, createdAt: Date.now() });
+  state.snippets.push({ id, name, content, category, createdAt: Date.now() });
   saveSnippets();
 }
 
@@ -36,14 +40,23 @@ function deleteSnippet(id) {
   saveSnippets();
 }
 
+function updateSnippetCategory(id, category) {
+  const snippet = state.snippets.find(s => s.id === id);
+  if (snippet) {
+    snippet.category = category;
+    saveSnippets();
+  }
+}
+
 function insertSnippet(content) {
   const textarea = $('prompt');
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const before = textarea.value.substring(0, start);
   const after = textarea.value.substring(end);
-  textarea.value = before + content + after;
-  textarea.selectionStart = textarea.selectionEnd = start + content.length;
+  const separator = before && !before.endsWith('\n') && !before.endsWith('，') && !before.endsWith('。') ? '，' : '';
+  textarea.value = before + separator + content + after;
+  textarea.selectionStart = textarea.selectionEnd = start + separator.length + content.length;
   textarea.focus();
   updatePrompt();
 }
@@ -252,6 +265,7 @@ function updateBatchActions() {
   $('batch-count').textContent = count ? `已选 ${count} 项` : '';
   $('batch-delete').disabled = count === 0;
   $('batch-export').disabled = count === 0;
+  $('batch-download').disabled = count === 0;
   $('select-all').checked = count > 0 && count === state.jobs.length;
 }
 
@@ -291,6 +305,25 @@ $('batch-export').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
+$('batch-download').addEventListener('click', async () => {
+  if (state.selectedJobs.size === 0) return;
+  const selected = state.jobs.filter(job => state.selectedJobs.has(job.id) && job.images.length > 0);
+  if (selected.length === 0) {
+    alert('选中的任务中没有可下载的图片');
+    return;
+  }
+
+  for (const job of selected) {
+    for (const image of job.images) {
+      const a = element('a');
+      a.href = `${image.url}?download=1`;
+      a.download = image.filename;
+      a.click();
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+  }
+});
+
 function renderSnippets() {
   const list = $('snippets-list');
   if (state.snippets.length === 0) {
@@ -298,26 +331,62 @@ function renderSnippets() {
     return;
   }
 
-  list.replaceChildren(...state.snippets.map(snippet => {
-    const card = element('article', 'snippet-card');
-    const header = element('div', 'snippet-header');
-    header.append(element('h3', '', snippet.name));
-    const deleteBtn = element('button', 'text-button', '删除');
-    deleteBtn.addEventListener('click', () => {
-      if (confirm(`删除片段「${snippet.name}」？`)) deleteSnippet(snippet.id);
-    });
-    header.append(deleteBtn);
+  // 按分类分组
+  const grouped = {};
+  state.snippetCategories.forEach(cat => grouped[cat] = []);
+  state.snippets.forEach(snippet => {
+    const cat = snippet.category || '其它';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(snippet);
+  });
 
-    const content = element('p', 'snippet-content', snippet.content);
-    const insertBtn = element('button', 'secondary-button', '插入到提示词');
-    insertBtn.addEventListener('click', () => {
-      insertSnippet(snippet.content);
-      showView('studio');
-    });
+  const sections = [];
+  for (const category of state.snippetCategories) {
+    const snippets = grouped[category];
+    if (snippets.length === 0) continue;
 
-    card.append(header, content, insertBtn);
-    return card;
-  }));
+    const section = element('div', 'snippet-section');
+    const header = element('h3', 'snippet-category-title', category);
+    section.append(header);
+
+    const grid = element('div', 'snippets-grid');
+    snippets.forEach(snippet => {
+      const card = element('article', 'snippet-card');
+
+      const headerDiv = element('div', 'snippet-header');
+      const nameSpan = element('span', 'snippet-name', snippet.name);
+      headerDiv.append(nameSpan);
+
+      const categorySelect = element('select', 'snippet-category-select');
+      state.snippetCategories.forEach(cat => {
+        const option = element('option', '', cat);
+        option.value = cat;
+        if (cat === snippet.category) option.selected = true;
+        categorySelect.append(option);
+      });
+      categorySelect.addEventListener('change', () => updateSnippetCategory(snippet.id, categorySelect.value));
+
+      const deleteBtn = element('button', 'text-button', '删除');
+      deleteBtn.addEventListener('click', () => {
+        if (confirm(`删除片段「${snippet.name}」？`)) deleteSnippet(snippet.id);
+      });
+      headerDiv.append(categorySelect, deleteBtn);
+
+      const content = element('p', 'snippet-content', snippet.content);
+      const insertBtn = element('button', 'secondary-button', '插入到提示词');
+      insertBtn.addEventListener('click', () => {
+        insertSnippet(snippet.content);
+        showView('studio');
+      });
+
+      card.append(headerDiv, content, insertBtn);
+      grid.append(card);
+    });
+    section.append(grid);
+    sections.push(section);
+  }
+
+  list.replaceChildren(...sections);
 }
 
 $('save-snippet').addEventListener('click', () => {
@@ -329,7 +398,16 @@ $('save-snippet').addEventListener('click', () => {
   }
   const name = prompt('给这段提示词起个名字：', selected.slice(0, 20));
   if (!name) return;
-  addSnippet(name.trim(), selected);
+
+  // 简单分类选择
+  const categoryList = state.snippetCategories.map((c, i) => `${i + 1}. ${c}`).join('\n');
+  const categoryInput = prompt(`选择分类（输入数字 1-${state.snippetCategories.length}）：\n${categoryList}`, '6');
+  const categoryIndex = parseInt(categoryInput) - 1;
+  const category = (categoryIndex >= 0 && categoryIndex < state.snippetCategories.length)
+    ? state.snippetCategories[categoryIndex]
+    : '其它';
+
+  addSnippet(name.trim(), selected, category);
   alert('片段已保存到提示词库');
 });
 
