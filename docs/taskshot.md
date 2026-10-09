@@ -10,7 +10,7 @@
 | IMG-004 | 一键启动与交付核验 | 已完成 | 启动、复用、停止、重启、深浅主题/500px 截图与安全扫描通过；界面点击生成未做真人浏览器验收 |
 | IMG-005 | 工作台手感与免安装 exe | 已完成 | 33 项离线测试；冷灰工作台截图；`dist/ImageStudio.exe` 在 4391 假端点启动；真实密钥不在 exe 内 |
 | IMG-006 | WebView2 原生桌面便携版 | 已完成 | 根目录约 33 MiB exe；39 项测试；实际 WebView2 离线出图、单实例、退出保护、草稿恢复、高 DPI、服务退出及原图/密钥不变均通过 |
-| IMG-007 | 文档与目录整理、GitHub 公开源码发布 | 阻塞 | 本地整理、39/39 测试、50 文件检查、暂存区扫描、9 类排除探针、5 个原文件哈希与干净克隆检查通过；GitHub 建仓 REST 403，尚未创建或推送 |
+| IMG-007 | 文档与目录整理、GitHub 公开源码发布 | 已完成 | 39/39 测试、50 文件检查、暂存区扫描、9 类排除探针与 5 个原文件哈希通过；GitHub PUBLIC/main、首次推送 SHA 一致；远端无凭据克隆、安装开发依赖、测试与检查通过 |
 
 完成边界：可交付原生 WebView2 桌面便携版，不代表每个服务商参数都已验证。IMG-006 的桌面交互通过真实原生窗口和本机假 Provider 验收；真实服务商生成仍只引用此前的 CLI 记录。另一台电脑与缺少 Runtime 环境未验证。完整记录见 [verification](verification.md)。
 
@@ -25,7 +25,7 @@ IMG-007：用户要求整理文档群和项目目录，创建 public GitHub 仓�
 3. 原密钥、非敏感配置、exe、历史任务和原图字节保持不变。
 4. `lanster-bear/IMAGE_GEN_TEST` 创建为 public，`main` 推送成功，远端提交 SHA 与本地一致。
 
-当前阻塞：用户报告完成授权后，CLI 登录账号仍为 `lanster-bear`，凭据类型仍为 fine-grained PAT；创建仓库 REST API 返回 `Resource not accessible by personal access token`（403），仓库查询为 404。需要用户在本机 CLI 中重新完成 OAuth 登录并核验建仓权限，不能将“已登录”记为“有创建权限”。
+历史阻塞已解除：原 fine-grained PAT 建仓返回 403。用户退出旧 CLI 登录并完成 OAuth 授权后，账号 `lanster-bear` 和 `repo` 权限核验通过；公开仓库创建、`main` 推送及远端提交核对成功。完成证据见 [verification](verification.md)。
 
 ## 创建后续任务时
 

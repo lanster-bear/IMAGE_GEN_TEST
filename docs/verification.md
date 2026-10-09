@@ -92,9 +92,14 @@ Chrome 无头命令行的 390px 请求实际产生 500px CSS 视口。诊断页�
 | 暂存区 | 50 个源码/文档文件；路径白名单、真实本机 Key 字节和凭据特征扫描通过；匹配的假 Key/URL 已核对为测试夹具 |
 | Git 排除 | 9 个探针通过：密钥、两类环境文件、任务、原图、旧 dist、exe、开发依赖、Windows 缓存；`.env.example` 允许提交 |
 | 原文件保护 | 密钥、exe、非敏感配置、1 个历史任务和 1 张原图共 5 个文件 SHA-256 与整理前一致 |
-| 干净克隆 | 从本地提交克隆到隔离临时目录，不带密钥/运行数据/依赖；`npm run check` 50 文件通过 |
-| GitHub | 账号 `lanster-bear` 已核验；首次 GraphQL 建仓被拒绝；用户报告授权后 CLI 仍为 fine-grained PAT，REST 建仓 403、目标仓库查询 404；尚未创建或推送 |
+| 本地干净克隆 | 从本地提交克隆到隔离临时目录，不带密钥/运行数据/依赖；`npm run check` 50 文件通过 |
+| OAuth 授权 | 用户退出旧 CLI 登录后亲自完成浏览器授权；账号 `lanster-bear`、`repo` 权限由 `gh auth status` 与用户接口核验 |
+| GitHub 仓库 | [lanster-bear/IMAGE_GEN_TEST](https://github.com/lanster-bear/IMAGE_GEN_TEST) 创建成功；`gh repo view` 确认 `PUBLIC` 与默认分支 `main` |
+| 首次推送 | `git push -u origin main` 成功；`git ls-remote origin refs/heads/main` 与本地 HEAD 一致：`d852d74642f3290f197ac65616b754e125521eb4` |
+| 远端干净克隆 | 清空本次克隆命令的凭据 helper/extraHeader，并禁用认证提示，从公开仓库克隆成功；密钥、exe、历史、原图、旧 dist 与缓存路径均不存在 |
+| 新克隆开发依赖 | `npm ci --ignore-scripts --no-fund --no-audit` 成功，11 个开发依赖包；未在原工作目录重装依赖 |
+| 新克隆验收 | `npm test` 39/39；`npm run check` 50 文件通过；不需要原本机密钥或创作数据 |
 
-发布因外部授权阻塞，本地首次提交为 `7135123`。当前凭据登录有效，但不具备已验证的建仓权限。没有改动凭据、权限或代理配置，也没有绕过网页登录。
+原 fine-grained PAT 在 GraphQL 和 REST 建仓时被拒绝；用户重新完成 OAuth 登录后阻塞解除。本地首次源码提交为 `7135123`，首次远端推送检查点如上。后续交接更新以正常提交追加，不强推、不改写历史。没有自行改动凭据、权限或代理配置，也没有绕过网页登录。
 
 公开文档移除了私人任务标识和原始提示词，本机任务/原图保留。此轮不改应用功能、不重建 exe、不启停正式服务、不做付费生成，也不重复历史桌面交互验收。公开源码没有预编译程序或本机验收截图；另一台电脑和新环境生图仍未验证。

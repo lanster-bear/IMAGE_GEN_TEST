@@ -12,9 +12,11 @@
 
 ## IMG-007 发布交接
 
-文档与公开目录边界已整理，本地 `main` 首次提交为 `7135123`，50 个文件已通过暂存区安全扫描，39 项离线测试和源码检查通过；无密钥、无运行数据的干净克隆也通过检查。目标仓库 `IMAGE_GEN_TEST` 尚未创建/推送。
+文档与公开目录边界已整理，源码已发布到 [lanster-bear/IMAGE_GEN_TEST](https://github.com/lanster-bear/IMAGE_GEN_TEST)，可见性 `PUBLIC`，默认分支 `main`。`origin` 为该仓库的 HTTPS 地址。首次源码提交 `7135123`；首次推送检查点 `d852d74` 的本地/远端 SHA 一致，原有提交历史保留。
 
-用户报告完成授权后核验：账号为 `lanster-bear`，CLI 仍使用 fine-grained PAT；REST `POST /user/repos` 返回 403（凭据无建仓权限），仓库查询返回 404。浏览器备选停在登录页，未代填或操作认证。需要用户重新完成 CLI OAuth 登录后再继续；不要把“登录成功”或“请求已发起”写成建仓成功。
+50 个源码/文档文件安全扫描、9 类排除探针与 5 个受保护文件哈希检查通过。从 GitHub 无凭据克隆到独立临时目录后，安装锁定的开发依赖成功，39 项离线测试和 50 文件源码检查通过。没有调用真实生成接口或重建桌面 exe。
+
+此前 fine-grained PAT 缺少建仓权限（403）；用户亲自重新完成 CLI OAuth 登录后已解除。账号 `lanster-bear`、`repo` 权限、实际建仓和推送均已验证。未代填认证，也未自行修改账号权限。后续不需要重复授权或重建仓库；是否仍有权限应在下一次获授权的远程操作前核验。
 
 环境注意：本机 PowerShell 7 profile 加载网络代理。用 `C:\Program Files\PowerShell\7\pwsh.exe` 并加载 profile 执行 gh；未加载 profile 的 PowerShell 5 会等待网络。此前由 Agent 发起的两条等待命令已停止，未修改代理或凭据配置。
 
