@@ -30,7 +30,7 @@ npm start
 
 ## 本机桌面版
 
-Windows 双击根目录 **Image Studio.exe**，直接打开 WebView2 原生桌面窗口，不打开外部浏览器，不需要安装 Node.js。**Start Studio.cmd** 和 **Start Portable.cmd** 也启动同一桌面程序。
+Windows 双击根目录 **Image Studio.exe**，直接打开 WebView2 原生桌面窗口，不打开外部浏览器，不需要安装 Node.js。`launch/` 目录下的 **Start Studio.cmd** 和 **Start Portable.cmd** 也启动同一桌面程序。
 
 公开仓库不附带 exe。已有本机产物可直接运行；克隆仓库后需先按下节构建，Start 脚本不是源码启动入口。
 
@@ -85,9 +85,10 @@ IMAGE_GEN_TEST/              克隆目录；现有本机目录可保持原名
 ├─ .env.example              占位配置，无真实凭据
 ├─ .gitignore                公开源码与本地文件的边界
 ├─ package.json / lock       命令与开发依赖锁定
-├─ Start Studio.cmd          启动桌面窗口
-├─ Start Portable.cmd        启动同一桌面程序
-├─ Stop Studio.cmd           旧浏览器版安全停止
+├─ launch/                   启动脚本
+│  ├─ Start Studio.cmd       启动桌面窗口
+│  ├─ Start Portable.cmd     启动同一桌面程序
+│  └─ Stop Studio.cmd        旧浏览器版安全停止
 ├─ config/studio.json        非敏感参数与提示词模板
 ├─ server/                   配置、服务商适配、任务、HTTP 服务
 ├─ public/                   原生 HTML / CSS / JS 前端

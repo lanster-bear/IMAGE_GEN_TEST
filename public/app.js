@@ -40,7 +40,13 @@ document.querySelectorAll('[data-view]').forEach(button => button.addEventListen
 function saveDraft() {
   localStorage.setItem('studio-draft', JSON.stringify({ prompt: $('prompt').value, model: $('model').value, size: document.querySelector('[name=size]:checked')?.value, quality: $('quality').value }));
 }
-function updatePrompt() { $('prompt-count').textContent = `${$('prompt').value.length} / ${state.config?.maxPromptLength || 12000}`; saveDraft(); }
+function updatePrompt() {
+  const length = $('prompt').value.length;
+  const max = state.config?.maxPromptLength || 12000;
+  $('prompt-count').textContent = `${length} / ${max}`;
+  $('prompt-count').classList.toggle('near-limit', length > max * 0.9);
+  saveDraft();
+}
 $('prompt').addEventListener('input', updatePrompt);
 $('clear-prompt').addEventListener('click', () => { $('prompt').value = ''; updatePrompt(); $('prompt').focus(); });
 for (const id of ['model', 'quality']) $(id).addEventListener('change', saveDraft);

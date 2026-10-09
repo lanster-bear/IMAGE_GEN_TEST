@@ -4,9 +4,9 @@
 
 ## 怎么用
 
-公开仓库仅提供源码，不包含 `Image Studio.exe` 或密钥。克隆后先按本页构建；本机已有 exe 的用户可直接使用。源码浏览器入口是 `npm start`，两份 Start 脚本都要求 exe 已存在。
+公开仓库仅提供源码，不包含 `Image Studio.exe` 或密钥。克隆后先按本页构建；本机已有 exe 的用户可直接使用。源码浏览器入口是 `npm start`，`launch/` 目录下的 Start 脚本都要求 exe 已存在。
 
-双击根目录 `Image Studio.exe`，或者 [Start Portable.cmd](../Start Portable.cmd)。打开的是 WebView2 原生桌面窗口，没有浏览器地址栏、外部浏览器或黑色控制台。不需要安装 Node.js。
+双击根目录 `Image Studio.exe`，或者 [launch/Start Portable.cmd](../launch/Start Portable.cmd)。打开的是 WebView2 原生桌面窗口，没有浏览器地址栏、外部浏览器或黑色控制台。不需要安装 Node.js。
 
 `Image_key.txt` 保留在 exe 旁边，不会打进 exe，也不再复制密钥。图片、任务和配置分别是同目录的 `outputs/`、`.data/`、`config/studio.json`。本次 exe 放在项目根目录，直接继续使用原历史。新目录第一次运行时，默认非敏感配置会自动建立。
 
@@ -26,6 +26,6 @@
 
 窗口只允许导航和下载同源本地内容，禁用外部新窗口、网页权限和网页消息桥。用户界面无法直接访问文件系统、Node.js 或密钥。WebView2 用户资料在 `.data/webview-profile/`；正常退出将草稿、主题和未确认请求 ID 写入 `.data/desktop-preferences.json`，避免临时端口改变导致草稿丢失。
 
-原生壳、内置服务各有单实例/数据锁。同目录不能同时运行源码服务与桌面服务。旧源码服务可用 `Stop Studio.cmd` 停止；随后再打开桌面版。强制结束进程时不能保证收尾，重启后未完成任务仍标记 interrupted，不自动续发。
+原生壳、内置服务各有单实例/数据锁。同目录不能同时运行源码服务与桌面服务。旧源码服务可用 `launch/Stop Studio.cmd` 停止；随后再打开桌面版。强制结束进程时不能保证收尾，重启后未完成任务仍标记 interrupted，不自动续发。
 
 exe 未签名，可能出现 SmartScreen 提示。应用日志在 `.data/desktop.log`、`.data/portable.log`。旧 `dist/ImageStudio.exe` 仅为浏览器式历史产物，保留但不再作为默认入口；`npm run portable:legacy` 才重建它。旧 dist 内的密钥副本不要外传。

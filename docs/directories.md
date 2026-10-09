@@ -1,6 +1,6 @@
 # Directories · 目录地图
 
-更新：2026-10-10
+更新：2026-01-10
 
 ## 组织原则
 
@@ -13,8 +13,9 @@
 | `README.md`、`AGENTS.md` | 用户使用入口与 Agent 工作入口 |
 | `.gitignore`、`.env.example` | 提交边界与无凭据配置示例 |
 | `package.json`、`package-lock.json` | 命令、开发依赖和锁定版本；运行时依赖为零 |
-| `Start Studio.cmd`、`Start Portable.cmd` | 启动已构建的根目录桌面 exe |
-| `Stop Studio.cmd` | 安全停止旧源码后台服务，不用于强杀桌面生成任务 |
+| `launch/` | 启动脚本集中目录 |
+| `launch/Start Studio.cmd`、`launch/Start Portable.cmd` | 启动已构建的根目录桌面 exe |
+| `launch/Stop Studio.cmd` | 安全停止旧源码后台服务，不用于强杀桌面生成任务 |
 | `config/` | 可公开的参数和示例模板；不要在此写入真实凭据 |
 | `server/` | 本地 HTTP 服务、服务商适配、配置、任务队列与互斥锁 |
 | `public/` | 静态页面、样式、浏览器交互和图标；不是公网发布目录 |
@@ -37,4 +38,4 @@
 | `node_modules/`、`coverage/` | 可重新生成的开发依赖与测试产物 |
 | `%SystemDrive%/` | 本机运行遗留的 Windows 缓存目录，不属于项目源码；保留并忽略 |
 
-不要用删除 `.data/`、`outputs/`、旧构建目录或缓存的方式“整理”。本轮没有删除、搬迁这些目录，也没有修改图片或密钥。备份、清理和迁移必须单独获得用户授权。
+不要用删除 `.data/`、`outputs/`、旧构建目录或缓存的方式”整理”。本轮没有删除、搬迁这些目录，也没有修改图片或密钥。备份、清理和迁移必须单独获得用户授权。
