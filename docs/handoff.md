@@ -4,11 +4,46 @@
 
 ## 恢复入口
 
-先读 [worknow](worknow.md)、[rules](rules.md)、[taskshot](taskshot.md)。原生壳 `desktop/Host.cs`，构建 `scripts/build-webview2.mjs`，服务 `server/index.mjs`，界面 `public/index.html` / `public/app.js`。目录职责见 [directories](directories.md)，便携版见 [portable](portable.md)，远程发布见 [publishing](publishing.md)。
+先读 [worknow](worknow.md)、[rules](rules.md)、[taskshot](taskshot.md)。原生壳 `desktop/Host.cs`，构建 `scripts/build-webview2.mjs`，服务 `server/index.mjs`，界面 `public/index.html` / `public/app.js`。目录职责见 [directories](directories.md)，便携版见 [portable](portable.md)，远程发布见 [publishing](publishing.md)。完整功能列表见 [features](features.md)，使用方法见 [guide](guide.md)。
 
 ## 当前交付状态
 
 默认本机交付为根目录 `Image Studio.exe`。IMG-006 验收结束时已重新打开原生窗口、停止旧 4317 浏览器服务；IMG-007 不改变运行服务，也不重复桌面交互验收。真实任务仍是原来的 1 个，没有新增付费生成，原图和密钥字节不变。39 项测试通过；历史 WebView2 离线交互证据位于 `.data/desktop-qa/`。旧 dist 浏览器 exe 保留，但不再作为默认入口。证据以 [verification](verification.md) 为准。
+
+## IMG-010 功能优化与项目整理
+
+提示词库增强：
+- 支持 6 个分类：场景、光线、风格、构图、材质、其它
+- 保存片段时选择分类（输入数字 1-6）
+- 片段卡片显示分类下拉菜单，可切换分类
+- 按分类分组显示，每组独立标题和网格
+- 插入片段时自动添加中文分隔符（智能判断句尾）
+- 旧数据自动迁移，未分类片段归入「其它」
+
+批量管理增强：
+- 新增批量下载图片功能（自动间隔下载）
+- 按钮顺序优化：下载 > 导出 > 删除（符合使用频率）
+- 导出按钮改为「导出 JSON」更明确
+- 下载功能自动过滤无图片的任务
+
+界面微调：
+- 提示词库说明文案更新，强调分类和智能分隔符
+- 片段卡片布局改进，名称和分类选择器同行
+- 分类标题样式：14px、下划线、浅色
+- 卡片 hover 增强阴影效果（0 2px 8px）
+
+文档补充：
+- 新增 [features.md](features.md)：完整功能说明、已验证范围、未包含功能
+- 新增 [guide.md](guide.md)：快速上手、使用技巧、常见问题、快捷键
+- 新增 [restructure-plan.md](restructure-plan.md)：目录整理方案记录
+
+目录整理：
+- 启动脚本已在 IMG-008 移至 `launch/` 目录
+- .gitignore 已包含 `%SystemDrive%/` 和 `Thumbs.db`
+- README 和文档已更新路径引用
+- 根目录保持整洁，只有必须的文件
+
+39 项测试通过，50 文件检查通过。密钥、原图、历史任务保持不变。未重建 exe、未启停服务、未调用真实生成接口。提交 `5ac683b` 已推送到 GitHub。
 
 ## IMG-009 批量管理与提示词库
 
