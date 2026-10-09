@@ -12,7 +12,11 @@
 
 ## IMG-007 发布交接
 
-文档与公开目录边界已整理，Git 已初始化为 `main`，50 个文件已通过暂存区安全扫描，39 项离线测试和源码检查通过。已登录 GitHub `lanster-bear`，目标仓库 `IMAGE_GEN_TEST` 尚待创建/推送验收。不要把待验收写成远端已完成。
+文档与公开目录边界已整理，本地 `main` 首次提交为 `7135123`，50 个文件已通过暂存区安全扫描，39 项离线测试和源码检查通过；无密钥、无运行数据的干净克隆也通过检查。目标仓库 `IMAGE_GEN_TEST` 尚未创建/推送。
+
+用户报告完成授权后核验：账号为 `lanster-bear`，CLI 仍使用 fine-grained PAT；REST `POST /user/repos` 返回 403（凭据无建仓权限），仓库查询返回 404。浏览器备选停在登录页，未代填或操作认证。需要用户重新完成 CLI OAuth 登录后再继续；不要把“登录成功”或“请求已发起”写成建仓成功。
+
+环境注意：本机 PowerShell 7 profile 加载网络代理。用 `C:\Program Files\PowerShell\7\pwsh.exe` 并加载 profile 执行 gh；未加载 profile 的 PowerShell 5 会等待网络。此前由 Agent 发起的两条等待命令已停止，未修改代理或凭据配置。
 
 仓库仅交付源码：不提交密钥、`.data/`、`outputs/`、exe、旧 dist 或 Windows 缓存。新克隆通过 `npm start` 运行源码；桌面入口先 `npm ci`、`npm run portable`。本机目录保留原名和布局，不搬迁数据。
 
