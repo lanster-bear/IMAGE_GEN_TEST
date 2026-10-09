@@ -39,6 +39,7 @@
               <div class="template-shortcuts" id="template-shortcuts" aria-label="快速填入提示词"></div>
               <div class="field"><label for="model">模型</label><select id="model" name="model" required><option value="">正在读取可用模型…</option></select><small>只列出当前密钥实际返回的模型</small></div>
               <fieldset class="size-field"><legend>比例</legend><div id="size-options" class="size-options"></div></fieldset>
+              <div class="preset-row"><label class="sr-only" for="preset-select">参数预设</label><select id="preset-select"><option value="">参数预设</option></select><button type="button" id="preset-save" class="text-button">保存当前</button><button type="button" id="preset-delete" class="text-button" disabled>删除</button></div>
               <details class="advanced"><summary>质量与数量<span>可选</span></summary><div class="advanced-grid"><div class="field"><label for="quality">质量</label><select id="quality"><option value="auto">服务商默认</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></div><div class="field"><label for="count">数量</label><select id="count"><option value="1">1 张</option></select></div></div><p class="help">未实测的尺寸和质量会原样提交。不支持时显示错误，不自动换参数重试。</p></details>
               <p id="form-error" class="error-message" role="alert" hidden></p>
               <div class="generate-footer"><button id="generate-button" class="primary-button" type="submit" disabled><span id="generate-label">生成图像</span></button><p>一次一张，失败不自动重试</p></div>

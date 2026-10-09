@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const labels = { queued: '等待生成', running: '正在生成', completed: '已完成', failed: '生成失败', interrupted: '任务中断' };
 const views = { studio: '工作台', library: '记录', templates: '模板', snippets: '提示词库', settings: '连接' };
-const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '', selectedJobs: new Set(), snippets: [], snippetCategories: ['场景', '光线', '风格', '构图', '材质', '其它'] };
+const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '', selectedJobs: new Set(), snippets: [], snippetCategories: ['场景', '光线', '风格', '构图', '材质', '其它'], presets: [] };
 let theme = localStorage.getItem('studio-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
 function applyTheme() {
@@ -106,6 +106,69 @@ function updatePrompt() {
 $('prompt').addEventListener('input', updatePrompt);
 $('clear-prompt').addEventListener('click', () => { $('prompt').value = ''; updatePrompt(); $('prompt').focus(); });
 for (const id of ['model', 'quality']) $(id).addEventListener('change', saveDraft);
+
+function loadPresets() {
+  try { state.presets = JSON.parse(localStorage.getItem('studio-presets') || '[]'); }
+  catch { state.presets = []; }
+  if (!Array.isArray(state.presets)) state.presets = [];
+}
+
+function renderPresets() {
+  const select = $('preset-select');
+  const current = select.value;
+  const blank = element('option', '', '参数预设');
+  blank.value = '';
+  select.replaceChildren(blank, ...state.presets.map(preset => {
+    const option = element('option', '', preset.name);
+    option.value = preset.id;
+    return option;
+  }));
+  if (state.presets.some(preset => preset.id === current)) select.value = current;
+  $('preset-delete').disabled = !select.value;
+}
+
+function savePresets() {
+  localStorage.setItem('studio-presets', JSON.stringify(state.presets));
+  renderPresets();
+}
+
+function applyPreset(id) {
+  const preset = state.presets.find(item => item.id === id);
+  if (!preset) return;
+  if ([...$('model').options].some(option => option.value === preset.model)) $('model').value = preset.model;
+  const size = [...document.querySelectorAll('[name=size]')].find(input => input.value === preset.size);
+  if (size) size.checked = true;
+  if (['auto', 'low', 'medium', 'high'].includes(preset.quality)) $('quality').value = preset.quality;
+  saveDraft();
+}
+
+$('preset-select').addEventListener('change', () => {
+  $('preset-delete').disabled = !$('preset-select').value;
+  if ($('preset-select').value) applyPreset($('preset-select').value);
+});
+
+$('preset-save').addEventListener('click', () => {
+  const model = $('model').value;
+  const size = document.querySelector('[name=size]:checked')?.value;
+  if (!model || !size) { alert('请先选好模型和比例，再保存预设。'); return; }
+  const name = prompt('给这组参数起个名字：', `${model} · ${size}`);
+  if (!name?.trim()) return;
+  state.presets.push({ id: crypto.randomUUID(), name: name.trim(), model, size, quality: $('quality').value || 'auto' });
+  savePresets();
+  $('preset-select').value = state.presets.at(-1).id;
+  $('preset-delete').disabled = false;
+});
+
+$('preset-delete').addEventListener('click', () => {
+  const id = $('preset-select').value;
+  const preset = state.presets.find(item => item.id === id);
+  if (!preset || !confirm(`删除预设「${preset.name}」？`)) return;
+  state.presets = state.presets.filter(item => item.id !== id);
+  savePresets();
+});
+
+loadPresets();
+renderPresets();
 
 function usePrompt(prompt) { $('prompt').value = prompt; updatePrompt(); showView('studio'); $('prompt').focus(); }
 function reuse(job) {
