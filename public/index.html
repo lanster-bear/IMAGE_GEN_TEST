@@ -17,6 +17,7 @@
       <nav aria-label="工作台导航">
         <button class="nav-item active" data-view="studio" aria-current="page">工作台</button>
         <button class="nav-item" data-view="library">记录<span id="library-count" class="nav-count">0</span></button>
+        <button class="nav-item" data-view="snippets">提示词库</button>
         <button class="nav-item" data-view="templates">模板</button>
         <button class="nav-item" data-view="settings">连接</button>
       </nav>
@@ -31,7 +32,7 @@
         <section id="view-studio" class="view">
           <div class="workspace">
             <form id="generate-form" class="composer">
-              <div class="section-title"><h2>提示词</h2><button type="button" id="clear-prompt" class="text-button">清空</button></div>
+              <div class="section-title"><h2>提示词</h2><div class="section-buttons"><button type="button" id="save-snippet" class="text-button">保存片段</button><button type="button" id="clear-prompt" class="text-button">清空</button></div></div>
               <label class="sr-only" for="prompt">提示词</label>
               <textarea id="prompt" name="prompt" maxlength="12000" placeholder="主体、场景、光线、构图。&#10;写清楚画面里有什么，比堆形容词有用。" required aria-describedby="prompt-help prompt-count"></textarea>
               <div class="prompt-meta"><span id="prompt-help">按 / 回到这里，Ctrl + Enter 生成</span><span id="prompt-count">0 / 12000</span></div>
@@ -50,7 +51,8 @@
             </section>
           </div>
         </section>
-        <section id="view-library" class="view" hidden><div class="page-heading"><div><h1>记录</h1><p>按提示词或模型查找，点开后回到工作台。</p></div><button id="refresh-jobs" class="secondary-button" type="button">刷新任务</button></div><label class="sr-only" for="library-search">搜索提示词或模型</label><input id="library-search" class="search-input" type="search" placeholder="搜索提示词或模型"><div id="library-list" class="library-grid"></div></section>
+        <section id="view-library" class="view" hidden><div class="page-heading"><div><h1>记录</h1><p>按提示词或模型查找，点开后回到工作台。</p></div><div class="batch-actions"><label class="checkbox-label"><input type="checkbox" id="select-all"><span>全选</span></label><span id="batch-count"></span><button id="batch-export" class="secondary-button" type="button" disabled>导出选中</button><button id="batch-delete" class="secondary-button" type="button" disabled>删除选中</button><button id="refresh-jobs" class="secondary-button" type="button">刷新任务</button></div></div><label class="sr-only" for="library-search">搜索提示词或模型</label><input id="library-search" class="search-input" type="search" placeholder="搜索提示词或模型"><div id="library-list" class="library-grid"></div></section>
+        <section id="view-snippets" class="view" hidden><div class="page-heading"><div><h1>提示词库</h1><p>保存常用的提示词片段，快速组合。</p></div></div><div id="snippets-list" class="snippets-grid"></div></section>
         <section id="view-templates" class="view" hidden><div class="page-heading"><div><h1>模板</h1><p>填入后还可以改。模板不会直接生成。</p></div></div><div id="template-list" class="template-grid"></div></section>
         <section id="view-settings" class="view" hidden><div class="page-heading"><div><h1>连接</h1><p>密钥只由本机服务读取，页面拿不到。</p></div></div><div class="settings-panel"><h2>服务</h2><dl id="settings-info"></dl><p class="help">端点和密钥来自环境变量，否则读取 exe 或项目旁边的 Image_key.txt。改完需要重启。</p><button id="settings-refresh" class="secondary-button" type="button">重新读取模型</button><h2 class="settings-section">生成</h2><p>默认一次 1 张、1024 × 1024、服务商默认质量。其它选项按兼容协议提交，不代表每个模型都支持。</p><h2 class="settings-section">文件</h2><p class="help">任务在 .data/jobs/。原图在 outputs/日期/。桌面窗口关闭时会一起停止服务；正在生成时会阻止退出。</p></div></section>
         <div id="global-error" class="global-error" role="alert" hidden></div>

@@ -79,6 +79,19 @@ export async function createStudio(config, provider = new ImageProvider(config))
       }
       if (request.method === 'POST' && url.pathname === '/api/models/refresh') { await refreshModels(); return json({ models, modelError, modelUpdatedAt }); }
       if (request.method === 'GET' && url.pathname === '/api/jobs') return json({ jobs: store.list() });
+      if (request.method === 'DELETE' && url.pathname === '/api/jobs/batch') {
+        const body = await readBody(request);
+        if (!Array.isArray(body.ids)) throw new InputError('ids 必须是数组。', 400);
+        const deleted = [];
+        for (const id of body.ids) {
+          const job = store.jobs.get(id);
+          if (!job) continue;
+          if (['queued', 'running'].includes(job.status)) throw new InputError(`任务 ${id} 正在执行，无法删除。`, 409);
+          await store.deleteJob(id);
+          deleted.push(id);
+        }
+        return json({ deleted: deleted.length });
+      }
       if (request.method === 'GET' && /^\/api\/jobs\/[0-9a-f-]+$/i.test(url.pathname)) {
         const job = store.jobs.get(url.pathname.split('/').pop());
         if (!job) throw new InputError('任务不存在。', 404);

@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const labels = { queued: '等待生成', running: '正在生成', completed: '已完成', failed: '生成失败', interrupted: '任务中断' };
-const views = { studio: '工作台', library: '记录', templates: '模板', settings: '连接' };
-const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '' };
+const views = { studio: '工作台', library: '记录', templates: '模板', snippets: '提示词库', settings: '连接' };
+const state = { config: null, jobs: [], selected: null, submitting: false, timer: null, previewKey: '', selectedJobs: new Set(), snippets: [] };
 let theme = localStorage.getItem('studio-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
 function applyTheme() {
@@ -10,6 +10,45 @@ function applyTheme() {
 }
 applyTheme();
 $('theme-toggle').addEventListener('click', () => { theme = theme === 'light' ? 'dark' : 'light'; localStorage.setItem('studio-theme', theme); applyTheme(); });
+
+// 提示词片段管理
+function loadSnippets() {
+  try {
+    state.snippets = JSON.parse(localStorage.getItem('studio-snippets') || '[]');
+  } catch {
+    state.snippets = [];
+  }
+}
+
+function saveSnippets() {
+  localStorage.setItem('studio-snippets', JSON.stringify(state.snippets));
+  renderSnippets();
+}
+
+function addSnippet(name, content) {
+  const id = crypto.randomUUID();
+  state.snippets.push({ id, name, content, createdAt: Date.now() });
+  saveSnippets();
+}
+
+function deleteSnippet(id) {
+  state.snippets = state.snippets.filter(s => s.id !== id);
+  saveSnippets();
+}
+
+function insertSnippet(content) {
+  const textarea = $('prompt');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = textarea.value.substring(0, start);
+  const after = textarea.value.substring(end);
+  textarea.value = before + content + after;
+  textarea.selectionStart = textarea.selectionEnd = start + content.length;
+  textarea.focus();
+  updatePrompt();
+}
+
+loadSnippets();
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -33,7 +72,11 @@ function showView(view) {
     if (active) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
   }
   $('view-label').textContent = views[view];
-  if (view === 'library') renderLibrary();
+  if (view === 'library') {
+    state.selectedJobs.clear();
+    renderLibrary();
+  }
+  if (view === 'snippets') renderSnippets();
 }
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
 
@@ -171,6 +214,20 @@ function renderPreview() {
 
 function jobCard(job) {
   const card = element('article', 'job-card'); card.dataset.id = job.id;
+
+  // 批量选择复选框
+  if ($('view-library').hidden === false) {
+    const checkbox = element('input'); checkbox.type = 'checkbox'; checkbox.className = 'job-checkbox';
+    checkbox.checked = state.selectedJobs.has(job.id);
+    checkbox.addEventListener('change', (e) => {
+      e.stopPropagation();
+      if (checkbox.checked) state.selectedJobs.add(job.id);
+      else state.selectedJobs.delete(job.id);
+      updateBatchActions();
+    });
+    card.append(checkbox);
+  }
+
   const button = element('button', job.images.length ? 'job-image-button' : 'job-placeholder'); button.setAttribute('aria-label', `查看任务：${job.prompt.slice(0, 50)}`);
   if (job.images.length) { const img = element('img'); img.src = job.images[0].url; img.alt = job.prompt; img.loading = 'lazy'; button.append(img); }
   else button.textContent = labels[job.status] || job.status;
@@ -186,8 +243,95 @@ function renderLibrary() {
   const term = $('library-search').value.trim().toLowerCase();
   const jobs = state.jobs.filter(job => `${job.prompt} ${job.model}`.toLowerCase().includes(term));
   $('library-list').replaceChildren(...(jobs.length ? jobs.map(jobCard) : [element('p', 'quiet-empty', term ? '没有匹配的作品。' : '还没有任务。')]));
+  updateBatchActions();
 }
 $('library-search').addEventListener('input', renderLibrary);
+
+function updateBatchActions() {
+  const count = state.selectedJobs.size;
+  $('batch-count').textContent = count ? `已选 ${count} 项` : '';
+  $('batch-delete').disabled = count === 0;
+  $('batch-export').disabled = count === 0;
+  $('select-all').checked = count > 0 && count === state.jobs.length;
+}
+
+$('select-all').addEventListener('change', () => {
+  if ($('select-all').checked) {
+    state.jobs.forEach(job => state.selectedJobs.add(job.id));
+  } else {
+    state.selectedJobs.clear();
+  }
+  renderLibrary();
+});
+
+$('batch-delete').addEventListener('click', async () => {
+  if (state.selectedJobs.size === 0) return;
+  if (!confirm(`确定删除 ${state.selectedJobs.size} 个任务？删除后无法恢复。`)) return;
+
+  try {
+    const ids = Array.from(state.selectedJobs);
+    await api('/api/jobs/batch', { method: 'DELETE', body: JSON.stringify({ ids }) });
+    state.selectedJobs.clear();
+    await loadJobs();
+  } catch (error) {
+    alert(`删除失败：${error.message}`);
+  }
+});
+
+$('batch-export').addEventListener('click', () => {
+  if (state.selectedJobs.size === 0) return;
+  const selected = state.jobs.filter(job => state.selectedJobs.has(job.id));
+  const data = JSON.stringify(selected, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = element('a');
+  a.href = url;
+  a.download = `image-studio-jobs-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function renderSnippets() {
+  const list = $('snippets-list');
+  if (state.snippets.length === 0) {
+    list.replaceChildren(element('p', 'quiet-empty', '还没有保存片段。在工作台选中提示词文字后点击「保存片段」。'));
+    return;
+  }
+
+  list.replaceChildren(...state.snippets.map(snippet => {
+    const card = element('article', 'snippet-card');
+    const header = element('div', 'snippet-header');
+    header.append(element('h3', '', snippet.name));
+    const deleteBtn = element('button', 'text-button', '删除');
+    deleteBtn.addEventListener('click', () => {
+      if (confirm(`删除片段「${snippet.name}」？`)) deleteSnippet(snippet.id);
+    });
+    header.append(deleteBtn);
+
+    const content = element('p', 'snippet-content', snippet.content);
+    const insertBtn = element('button', 'secondary-button', '插入到提示词');
+    insertBtn.addEventListener('click', () => {
+      insertSnippet(snippet.content);
+      showView('studio');
+    });
+
+    card.append(header, content, insertBtn);
+    return card;
+  }));
+}
+
+$('save-snippet').addEventListener('click', () => {
+  const textarea = $('prompt');
+  const selected = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd).trim();
+  if (!selected) {
+    alert('请先在提示词框中选中要保存的文字');
+    return;
+  }
+  const name = prompt('给这段提示词起个名字：', selected.slice(0, 20));
+  if (!name) return;
+  addSnippet(name.trim(), selected);
+  alert('片段已保存到提示词库');
+});
 
 async function loadJobs() {
   const data = await api('/api/jobs');

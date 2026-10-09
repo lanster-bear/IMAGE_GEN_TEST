@@ -40,13 +40,18 @@ nav { display: grid; gap: 4px; margin-top: 20px; }
 .connection.ready { color: var(--text); }
 main { min-height: 0; flex: 1; overflow: auto; padding: 18px 22px 22px; outline: none; }
 .view { min-height: 100%; }
-.page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
+.page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.batch-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.checkbox-label input[type="checkbox"] { cursor: pointer; }
+#batch-count { color: var(--muted); font-size: 13px; min-width: 70px; }
 .page-heading p, .help, .field small { color: var(--muted); font-size: 13px; }
 .page-heading p { margin-top: 6px; }
 .workspace { display: grid; grid-template-columns: 332px minmax(0,1fr); gap: 20px; align-items: start; min-height: calc(100dvh - 88px); }
 .composer, .settings-panel, .template-card, .job-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
 .composer { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 .section-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.section-buttons { display: flex; gap: 8px; }
 .composer textarea { width: 100%; min-height: 180px; max-height: 320px; margin-top: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 12px; resize: vertical; line-height: 1.7; transition: border-color 0.2s ease; }
 textarea:focus, input:focus, select:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
 .prompt-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 0; color: var(--muted); font-size: 12px; }
@@ -115,10 +120,16 @@ select, .search-input { width: 100%; background: var(--paper); border: 1px solid
 .job-meta span:last-child { flex: none; }
 .job-controls .text-button, .job-controls a { font-size: 11px; }
 .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.library-grid .job-card { width: auto; flex: none; }
+.library-grid .job-card { width: auto; flex: none; position: relative; }
 .library-grid .job-image-button, .library-grid .job-placeholder { height: 180px; }
+.job-checkbox { position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; cursor: pointer; z-index: 2; accent-color: var(--ink); }
 .search-input { max-width: 420px; margin-bottom: 16px; }
 .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.snippets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.snippet-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 12px; }
+.snippet-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.snippet-header h3 { font-size: 14px; font-weight: 640; margin: 0; }
+.snippet-content { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .template-card { padding: 18px; }
 .template-card small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
 .template-card p { margin: 14px 0; color: var(--muted); font-size: 13px; line-height: 1.7; }

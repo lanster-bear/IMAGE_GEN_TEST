@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, writeFile, rename } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile, rename, unlink } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { sanitize } from './config.mjs';
@@ -98,5 +98,25 @@ export class JobStore {
         await this.save(job);
       }
     } finally { this.draining = false; }
+  }
+
+  async deleteJob(id) {
+    const job = this.jobs.get(id);
+    if (!job) return;
+
+    // 删除图片文件
+    for (const image of job.images) {
+      try {
+        const imagePath = path.join(this.config.outputDir, image.url.replace(/^\/outputs\//, ''));
+        await unlink(imagePath);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
+
+    // 删除任务文件
+    const filename = path.join(this.jobDir, `${job.id}.json`);
+    await unlink(filename);
+    this.jobs.delete(id);
   }
 }
