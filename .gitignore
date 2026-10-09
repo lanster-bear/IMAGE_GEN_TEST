@@ -1,0 +1,19 @@
+# Local credentials (only the placeholder example is public).
+Image_key.txt
+.env
+.env.*
+!.env.example
+
+# Creative data and local runtime/build artifacts. Keep them on disk.
+.data/
+outputs/
+dist/
+Image Studio.exe
+%SystemDrive%/
+
+# Development dependencies and temporary files.
+node_modules/
+coverage/
+*.log
+*.tmp
+Thumbs.db

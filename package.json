@@ -1,0 +1,25 @@
+{
+  "name": "image-gen-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first image generation studio with server-side credentials",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "dev": "node --watch server/index.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "generate": "node scripts/generate.mjs",
+    "qa:render": "node scripts/render-qa.mjs",
+    "portable": "node scripts/build-webview2.mjs",
+    "portable:legacy": "node scripts/build-portable.mjs",
+    "qa:desktop": "node scripts/verify-webview2.mjs"
+  },
+  "devDependencies": {
+    "happy-dom": "20.14.6",
+    "postject": "^1.0.0-alpha.6"
+  }
+}

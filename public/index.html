@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Image Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到工作区</a>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Image Studio 首页"><span>Image Studio<small>本机工作台</small></span></a>
+      <nav aria-label="工作台导航">
+        <button class="nav-item active" data-view="studio" aria-current="page">工作台</button>
+        <button class="nav-item" data-view="library">记录<span id="library-count" class="nav-count">0</span></button>
+        <button class="nav-item" data-view="templates">模板</button>
+        <button class="nav-item" data-view="settings">连接</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-note"><span class="status-dot" aria-hidden="true"></span><div>只在这台电脑上运行<small>密钥不进入页面</small></div></div>
+        <button id="theme-toggle" class="text-button" type="button">切换为深色</button>
+      </div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar"><span id="view-label">工作台</span><div class="topbar-right"><span id="connection-status" class="connection">正在连接本地服务</span><button id="refresh-models" class="text-button" type="button">刷新连接</button></div></header>
+      <main id="main" tabindex="-1">
+        <section id="view-studio" class="view">
+          <div class="workspace">
+            <form id="generate-form" class="composer">
+              <div class="section-title"><h2>提示词</h2><button type="button" id="clear-prompt" class="text-button">清空</button></div>
+              <label class="sr-only" for="prompt">提示词</label>
+              <textarea id="prompt" name="prompt" maxlength="12000" placeholder="主体、场景、光线、构图。&#10;写清楚画面里有什么，比堆形容词有用。" required aria-describedby="prompt-help prompt-count"></textarea>
+              <div class="prompt-meta"><span id="prompt-help">按 / 回到这里，Ctrl + Enter 生成</span><span id="prompt-count">0 / 12000</span></div>
+              <div class="template-shortcuts" id="template-shortcuts" aria-label="快速填入提示词"></div>
+              <div class="field"><label for="model">模型</label><select id="model" name="model" required><option value="">正在读取可用模型…</option></select><small>只列出当前密钥实际返回的模型</small></div>
+              <fieldset class="size-field"><legend>比例</legend><div id="size-options" class="size-options"></div></fieldset>
+              <details class="advanced"><summary>质量与数量<span>可选</span></summary><div class="advanced-grid"><div class="field"><label for="quality">质量</label><select id="quality"><option value="auto">服务商默认</option><option value="low">低</option><option value="medium">中</option><option value="high">高</option></select></div><div class="field"><label for="count">数量</label><select id="count"><option value="1">1 张</option></select></div></div><p class="help">未实测的尺寸和质量会原样提交。不支持时显示错误，不自动换参数重试。</p></details>
+              <p id="form-error" class="error-message" role="alert" hidden></p>
+              <div class="generate-footer"><button id="generate-button" class="primary-button" type="submit" disabled><span id="generate-label">生成图像</span></button><p>一次一张，失败不自动重试</p></div>
+            </form>
+            <section class="stage" aria-label="生成预览">
+              <div class="preview-heading"><h2>当前画面</h2><span id="preview-status">空闲</span></div>
+              <div id="preview" class="preview" aria-live="polite"><div class="empty-preview"><h3>还没有画面</h3><p>生成完成后，原图留在这台电脑上。</p></div></div>
+              <div id="preview-actions" class="preview-actions" hidden><div id="image-info"></div><div class="action-group"><button id="reuse-current" class="secondary-button" type="button">回填提示词</button><button id="copy-current" class="secondary-button" type="button">复制提示词</button><a id="download-current" class="secondary-button" download>下载原图</a></div></div>
+              <div class="recent-section"><div class="section-title"><h2>最近</h2><button class="text-button" data-view="library" type="button">全部记录</button></div><div id="recent-list" class="recent-list" tabindex="0" aria-label="最近任务"><p class="quiet-empty">还没有任务。</p></div></div>
+            </section>
+          </div>
+        </section>
+        <section id="view-library" class="view" hidden><div class="page-heading"><div><h1>记录</h1><p>按提示词或模型查找，点开后回到工作台。</p></div><button id="refresh-jobs" class="secondary-button" type="button">刷新任务</button></div><label class="sr-only" for="library-search">搜索提示词或模型</label><input id="library-search" class="search-input" type="search" placeholder="搜索提示词或模型"><div id="library-list" class="library-grid"></div></section>
+        <section id="view-templates" class="view" hidden><div class="page-heading"><div><h1>模板</h1><p>填入后还可以改。模板不会直接生成。</p></div></div><div id="template-list" class="template-grid"></div></section>
+        <section id="view-settings" class="view" hidden><div class="page-heading"><div><h1>连接</h1><p>密钥只由本机服务读取，页面拿不到。</p></div></div><div class="settings-panel"><h2>服务</h2><dl id="settings-info"></dl><p class="help">端点和密钥来自环境变量，否则读取 exe 或项目旁边的 Image_key.txt。改完需要重启。</p><button id="settings-refresh" class="secondary-button" type="button">重新读取模型</button><h2 class="settings-section">生成</h2><p>默认一次 1 张、1024 × 1024、服务商默认质量。其它选项按兼容协议提交，不代表每个模型都支持。</p><h2 class="settings-section">文件</h2><p class="help">任务在 .data/jobs/。原图在 outputs/日期/。桌面窗口关闭时会一起停止服务；正在生成时会阻止退出。</p></div></section>
+        <div id="global-error" class="global-error" role="alert" hidden></div>
+      </main>
+    </div>
+  </div>
+  <dialog id="image-dialog"><div class="dialog-toolbar"><span>原图</span><button id="close-dialog" class="secondary-button" type="button">关闭</button></div><img id="dialog-image" alt="生成图片的原图预览"></dialog>
+</body>
+</html>
