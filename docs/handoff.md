@@ -10,6 +10,37 @@
 
 默认本机交付为根目录 `Image Studio.exe`。IMG-006 验收结束时已重新打开原生窗口、停止旧 4317 浏览器服务；IMG-007 不改变运行服务，也不重复桌面交互验收。真实任务仍是原来的 1 个，没有新增付费生成，原图和密钥字节不变。39 项测试通过；历史 WebView2 离线交互证据位于 `.data/desktop-qa/`。旧 dist 浏览器 exe 保留，但不再作为默认入口。证据以 [verification](verification.md) 为准。
 
+## IMG-009 批量管理与提示词库
+
+批量管理功能：
+- 记录页面卡片增加复选框（仅记录页面显示）
+- 页面头部批量操作工具栏：全选、已选计数、导出、删除、刷新
+- 批量删除调用 DELETE /api/jobs/batch，删除任务JSON和关联图片
+- 删除保护：queued/running 状态任务返回 409 拒绝删除
+- 批量导出为 JSON 文件，文件名含日期
+
+提示词库功能：
+- 新增导航项「提示词库」，state.snippets 数组存储
+- 工作台提示词标题栏增加「保存片段」按钮
+- 选中文字后点击保存，输入名称，存入 localStorage
+- 提示词库视图展示所有片段卡片（名称、内容预览、插入、删除）
+- 插入片段：在光标位置插入，自动跳转工作台并聚焦
+- LocalStorage key: studio-snippets，JSON 数组持久化
+
+服务端：
+- DELETE /api/jobs/batch 接口，body.ids 数组
+- JobStore.deleteJob(id) 方法：删除任务JSON和图片文件
+- 删除时检查状态，queued/running 拒绝并返回 409
+- 图片路径从 image.url 解析，使用 config.outputDir
+
+前端样式：
+- .job-checkbox 绝对定位左上角，z-index: 2
+- .batch-actions 工具栏，flex 布局，gap 12px
+- .snippet-card 卡片样式，.snippet-content 三行截断
+- .section-buttons 容器支持多按钮布局
+
+39 项测试通过，50 文件检查通过。密钥、原图、历史任务保持不变。未重建 exe、未启停服务、未调用真实生成接口。提交 `0f0e393` 已推送到 GitHub。
+
 ## IMG-008 整理交接
 
 目录结构整理完成：启动脚本移至 `launch/` 目录，根目录更整洁，所有文档链接已更新并通过检查。
