@@ -6,7 +6,7 @@
 
 ## 新电脑首次运行
 
-最简单的方式是运行源码版。先在人手动完成以下准备：
+最简单的方式是运行源码版。先手动完成以下准备：
 
 1. 安装 Git 和 Node.js 22 或更高版本（建议安装 Node.js LTS）。安装完成后打开新的终端，运行 `git --version`、`node --version`、`npm --version` 确认命令可用。
 2. 选择一个提供 **OpenAI 兼容图像生成 API** 的服务商，并登录其官方网站/控制台。按服务商要求实名或充值，在控制台创建 API Key，确认该 Key 所属分组已开通图像生成权限，并记下 API Base URL 和一个可用的生图模型 ID。模型发现接口需兼容 `GET /v1/models`，生成接口需兼容 `POST /v1/images/generations`；仅支持聊天文本或其它非兼容格式的服务不能直接使用。
@@ -103,6 +103,16 @@ npm run generate -- --prompt "清晨的山间湖泊，薄雾、自然光，无�
 
 尺寸/质量来自兼容协议，不等于服务商保证支持。具体实测范围见 [验证记录](docs/verification.md)。不包含图生图、远程多用户、自动提示词优化或批量计费策略。
 
+## 图标素材
+
+<img src="assets/icons/image-studio.png" alt="Image Studio 图标：深灰底、取景框与绿色光圈" width="128" height="128">
+
+- [ICO 图标](assets/icons/image-studio.ico)：供 Windows 图标使用。
+- [PNG 预览](assets/icons/image-studio.png)：512 × 512 像素。
+- [SVG 源图](assets/icons/image-studio.svg)：可编辑矢量素材。
+
+素材随源码下载保存在 `assets/icons/`。当前仅提供独立文件，尚未绑定应用窗口、favicon 或 exe；加入素材不会自动改变程序图标。
+
 ## 项目目录
 
 ```text
@@ -117,6 +127,7 @@ IMAGE_GEN_TEST/              克隆目录；现有本机目录可保持原名
 │  ├─ Start Portable.cmd     启动同一桌面程序
 │  └─ Stop Studio.cmd        旧浏览器版安全停止
 ├─ config/studio.json        非敏感参数与提示词模板
+├─ assets/icons/             ICO、PNG 预览和 SVG 图标源图
 ├─ server/                   配置、服务商适配、任务、HTTP 服务
 ├─ public/                   原生 HTML / CSS / JS 前端
 ├─ desktop/                  WebView2 原生窗口与应用清单
